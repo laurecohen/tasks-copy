@@ -1,2 +1,2 @@
 # Tasks (copie)
-Logiciel de gestion des tâches de la Coopalim, en cours de développement.
+Application web pour la gestion des tâches de la Coopalim (projet en cours de développement).
