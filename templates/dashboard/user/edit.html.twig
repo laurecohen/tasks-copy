@@ -1,0 +1,137 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+
+{% block title %}{{ parent() }} | {{ user.firstName|capitalize ~ " " ~ user.lastName|upper }}{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %}
+
+{% block content_title %}
+    {% set section_title = user.firstName|capitalize ~ " " ~ user.lastName|upper %}
+    {{ section_title }}
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('user_index') }}">Retour à la liste</a>
+{% endblock %}
+
+{% block flashes %}
+    {{ parent() }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="content-panel-body">
+        <section class="section-info form-info">
+            <table class="table form-info-body">
+                <caption class="card-header">Informations personnelles</caption>
+                <tbody>
+                    <tr>
+                        <th scope="row">Nom</td>
+                        <td>{{ user.lastName|upper }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Prénom</td>
+                        <td>{{ user.firstName|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Email</td>
+                        <td><a href="mailto:{{ user.email }}">{{ user.email }}</a></td>
+                    </tr>
+                    <tr>
+                        {% set telephone = user.phone|split ('', 2) %}
+                        <th scope="row">Téléphone</td>
+                        <td>
+                            {% for key in telephone %}
+                                {{ key }}
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Adresse postale</td>
+                        <td>
+                            {{ user.street ~ ", " ~ user.zip ~ " " ~ user.town }}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Année de naissance</td>
+                        <td>
+                            {% if user.yearOfBirth %}
+                                {{ user.yearOfBirth }}
+                            {% else %}
+                                <span class="text-muted">Non renseignée</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section class="section-info form-info">
+            <table class="table form-info-body">
+                <caption class="card-header">Gestion des tâches</caption>
+                <tbody>
+                    <tr>
+                        <th scope="row">Email de connexion</th>
+                        <td>{{ user.login }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Adhésion valide</th>
+                        <td>{{ user.hasValidAdhesion ? 'Oui' : 'Non' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Groupe(s) de travail *</th>
+                        <td>
+                            {% for team in user.teams|sort((a, b) => a <=> b) %}
+                                {{ team|capitalize }}{% if not loop|last %},{% endif %}
+                            {% else %}
+                                <span class="text-muted">Aucun</span>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Droits d'administration *</th>
+                        <td>{{ user.isAdmin ? 'Oui' : 'Non' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Badge</th>
+                        <td>{{ user.hasPass ? 'Oui' : 'Non' }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Compétences</th>
+                        <td>
+                            {% block form_body %}
+                                {{ include('dashboard/user/_form.html.twig') }}
+                            {% endblock %}
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" class="text-muted">* Les droits d'administration dans l'application sont déterminés par l'appartenance à certains groupes de travail (GT).</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </section>
+                <section class="section-info form-info">
+            <table class="table form-info-body">
+                <caption class="card-header">Tâches</caption>
+                <tbody>
+                    {% for registrationTask in user.registrationTasks|sort((a, b) => a.task.eventStart <=> b.task.eventStart)|filter(rt => rt.task.eventStart > date()) %}                        
+                        <tr>
+                            <td>{{ registrationTask.task.category }}</td>
+                            <td><a href="{{ path('user_registration_delete', {'id': registrationTask.id}) }}" class="remove-button">Annuler</a></td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="2"><span class="text-muted">Aucune tâche à venir.</span></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+{% endblock %}

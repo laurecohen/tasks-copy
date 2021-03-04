@@ -1,0 +1,110 @@
+{% set button_label = "Enregistrer les modifications" %}
+
+{{ form_start(form) }}
+    {{ form_errors(form) }}
+    <section class="section-info form-info">
+        <table class="table form-info-body">
+            <tbody>
+                {# si le modèle a déjà servi à générer des tâches... #}
+                {% if task_template.tasks|length > 0 %}
+                    <tr>
+                        <th scope="row">Catégorie</th>
+                        <td>{{ task_template.category|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Jour de la semaine</th>
+                        <td>{{ task_template.formattedDayofWeek|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Horaires de service</th>
+                        <td>{{ task_template.startAt|date('H:i') ~ "-" ~task_template.endAt|date('H:i') }}</td>
+                    </tr>
+                {% else %}
+                    {# sinon afficher tous les champs #}
+                    <tr>
+                        <th scope="row">Catégorie</th>
+                        <td>{{ form_widget(form.category) }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Jour de la semaine</th>
+                        <td>{{ form_widget(form.dayOfWeek) }}</td>
+                    </tr>
+                    <tr class="form-row-multiple">
+                        <th scope="row">Horaires de service</th>
+                        <td>
+                            <span>
+                                {{ form_label(form.startAt) }}
+                                {{ form_widget(form.startAt) }}
+                            </span>      
+                            <span>
+                                {{ form_label(form.endAt) }}
+                                {{ form_widget(form.endAt) }}
+                            </span>      
+                        </td>
+                    </tr>
+                {% endif %}
+                <tr class="form-group">
+                    <th scope="row">Participants nécessaires</th>
+                    <td class="form-row">
+                        <span class="col-auto">{{ form_widget(form.membersMin) }}</span>
+                    </td>
+                </tr>
+                <tr class="form-group">
+                    <th scope="row">Participants maximum</th>
+                    <td class="form-row">
+                        <span class="col-auto">{{ form_widget(form.membersMax) }}</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">Compétences</th>
+                    <td class="form-group-collection">
+                        <section id="templateskills-fields-list"
+                            data-prototype="{{ form_widget(form.templateSkills.vars.prototype)|e }}"
+                            data-widget-tagname="{{ 'div'|e }}"
+                            data-widget-counter="{{ form.templateSkills|length }}">
+
+                            {{ form_label(form.templateSkills) }}
+                            {% if form.templateSkills is empty %}
+                                {# store hidden template and render empty form widget #}
+                                <div style="display:none; height:0" class="collection-row">
+                                    {{ form_widget(form.templateSkills) }}
+                                    <div class="collection-col"></div>
+                                </div>
+                            {% else %}
+                                {% for templateSkill in form.templateSkills %}
+                                    <div class="collection-row add-remove-button">
+                                        {% for child in templateSkill %}        
+                                            <div class="collection-col">
+                                                {{ form_errors(child) }}
+                                                {{ form_widget(child) }}
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                {% endfor %}  
+                            {% endif %}          
+                        </section>
+                        <p><a href="#" class="add-another-collection-widget" data-list-selector="#templateskills-fields-list">Ajouter une compétence</a></p>
+                    </td>
+                </tr>
+
+                <tr class="form-group">
+                    <th scope="row">Récurrence</th>
+                    <td class="form-check pl-0">
+                        {{ form_widget(form.isRecurrent) }}
+                        {{ form_label(form.isRecurrent) }}
+
+                        {% if editMode %}
+                            <small class="form-text text-muted">
+                                Générer une tâche tous les {{ "#{task_template.formattedDayOfWeek}s" }} de {{ task_template.startAt ? task_template.startAt|date('H\\hi', 'Europe/Paris') : '' }}-{{ task_template.endAt ? task_template.endAt|date('H\\hi') : '' }} à partir de ce modèle.
+                            </small>
+                        {% else %}
+                            {{ form_help(form.isRecurrent) }}
+                        {% endif %}
+                    </td>
+                </tr>
+
+            </tbody>
+        </table>
+    </section>
+    <button class="save-button">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}

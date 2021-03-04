@@ -1,0 +1,664 @@
+/* Fontes */
+@import "~@fortawesome/fontawesome-free/scss/fontawesome.scss";
+@import "~@fortawesome/fontawesome-free/scss/solid.scss";
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+/* Variables: préparer les variables
+ * tous les évènements du calendrier
+ * toutes les boîtes d'alertes */
+$vente: lightblue;
+$livraisons: lightpink;
+$dark: #005739;
+$secondary: #27AA3F;
+
+// Dimensions
+$nav-height: 58px;
+
+// Redéfinir les couleurs de thème de Bootstrap + custom
+$theme-colors: (
+    dark: #005739,
+    secondary: #27AA3F,
+    vente: $vente,
+    livraisons: $livraisons
+);
+$theme-alerts: (
+    success: fa-content($fa-var-check-circle),
+    warning: fa-content($fa-var-exclamation-triangle),
+    danger: fa-content($fa-var-exclamation-triangle),
+    info: fa-content($fa-var-exclamation-circle)
+);
+$theme-views: (
+    dayGridMonth: fa-content($fa-var-calendar-alt),
+    dayGridWeek: fa-content($fa-var-calendar-week),
+    listMonth: fa-content($fa-var-list-ul)
+);
+
+
+// puis importer Bootstrap pour enregistrer les changements
+// et importer les variables par défaut
+@import "~bootstrap/scss/bootstrap";
+
+
+/* Mixins: définir le style commun à
+ * tous les évènements du calendrier
+ * toutes les boîtes d'alertes, etc. */
+@mixin event-color($name, $color) {
+    // Couleur du background de .main-nav
+    .theme-#{$name} {
+        background-color: $color;
+    }
+    // Couleur du point dans les tableaux
+    .dot-#{$name} {
+        &::before {
+            @include fa-icon;
+            @extend .fa;
+            @extend .mr-0;
+            content: fa-content($fa-var-circle);
+            font-size: .75rem;
+            color: $color;
+        }
+    }
+    // Couleur des badges
+    .badge-#{$name} {
+        @extend .badge;
+        background-color: $color;
+    }
+    .event-#{$name} {
+        .fc-daygrid-event-dot, 
+        .fc-list-event-dot {
+            border-color: $color; 
+        }
+        &.fc-timegrid-event {
+            &.fc-event{                
+                background-color: $color;
+                border-color: $color;
+            }
+        }
+    }
+}
+
+@mixin alert($name, $content) {
+    .alert-#{$name} {
+        @extend .alert;
+        &::before {
+            @include fa-icon;
+            @extend .fa;
+            content: $content;
+        }
+    }
+}
+
+@mixin make-dropdown() {
+    @extend .dropdown;
+
+    .fc-button-group {
+        @include transition($transition-fade);
+        @extend .dropdown-menu;
+        @extend .dropdown-menu-right;
+        
+        .fc-button {
+            @extend .dropdown-item;
+        }
+    } 
+    #choseViewButton {
+        @extend .dropdown-toggle;
+    }
+}
+@mixin view($name, $content) {
+    #choseViewButton[data-current=#{$name}] {
+        &::before {
+            @include fa-icon;
+            @extend .fa;
+            @extend .mr-2;
+            content: $content;
+        }
+    }
+    #choseViewMenu {
+        .fc-#{$name}-button {
+            &::before {
+                @include fa-icon;
+                @extend .fa;
+                @extend .mr-2;
+                content: $content;
+            }
+        }
+    }
+}
+
+/* et appliquer les styles */
+@each $key, $value in $theme-colors {
+    @include event-color($key, $value);
+}
+@each $key, $value in $theme-alerts {
+    @include alert($key, $value);
+}
+@each $key, $value in $theme-views {
+    @include view($key, $value);
+}
+
+// Universal Box Sizing with Inheritance
+// Each element inherits the value of box-sizing from body
+*,
+*::after,
+*::before {
+  box-sizing: inherit;
+}
+
+
+// HTML elements
+body {   
+    box-sizing: border-box;
+    font-size: 0.875rem;
+    width: 100vw;
+    min-height: 100vh;
+    
+    // Main wrapper
+    .content-wrapper {
+        @extend .container-fluid;
+        @extend .px-0;
+        @extend .d-flex;
+
+        // Full height (browser window - header)
+        min-height: calc(100% - #{$nav-height});
+        background-color: $light;
+
+        &.wrapper-dashboard {
+            @include media-breakpoint-down(md) {
+                flex-wrap: wrap;
+                min-height: 0;
+            }
+        }
+    }
+}
+
+.bold-link {
+    @extend .font-weight-bold;
+}
+
+// Loader
+// visible quand un évènement est déclenché (ajax)
+#loader-wrapper {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba($light, 0.5);
+    color: lighten($primary, 5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+
+    #loader {
+        font-size: 3em; 
+        &::after {
+            @include fa-icon;
+            @extend .fa;
+            @extend .fa-spin;
+            content: fa-content($fa-var-circle-notch);
+        }
+    }
+}
+
+// Header/main-navigation
+.main-nav {
+    @extend .navbar;
+    @extend .navbar-expand-lg;
+    @extend .navbar-dark;
+    @extend .sticky-top;
+    padding-top: 0;
+    padding-bottom: 0;
+    z-index: 1030;
+    
+    .nav-brand {
+        @extend .navbar-brand;
+        font-family: 'Pacifico', cursive;
+        font-size: 2rem;
+    }
+    #nav-toggler {
+        @extend .navbar-toggler;
+        .nav-toggler-icon {
+            @extend .navbar-toggler-icon;
+        }
+    }
+    .nav-collapsible {
+        @extend .collapse;
+        @extend .navbar-collapse;
+        padding-bottom: 0;
+
+        .nav-menu {
+            @extend .navbar-nav;
+            @extend .mr-auto;
+
+            a {
+                @extend .nav-link;
+                padding: 0.75rem 1rem;
+                color: rgba($light, 0.9);
+            
+                &:hover {
+                    color: $light; 
+                }
+                &.active {
+                    color: $light; 
+                    box-shadow: 0 6px 0 white;   
+                }
+            }
+        }
+        &.show {
+            padding-bottom: 1rem;
+    
+            .nav-link {
+                &.active {
+                    box-shadow: none;   
+                }
+            }
+        }
+        .user-menu-wrapper {
+            @extend .ml-auto;
+            .user-name {
+                @extend .px-3;
+                color: $light;
+            }
+        }
+    }
+}
+
+
+.content {
+
+    .content-header {
+        padding-top: 1rem;
+        padding-bottom: .5rem;
+        @extend .d-flex;
+        @extend .flex-row;
+        @extend .justify-content-between;
+        @extend .align-items-baseline;
+        @extend .border-bottom;
+        @extend .mb-3;
+
+        background-color: $light;
+
+        &-title {
+            @extend .h3;
+            margin-bottom: 0;
+
+            .title-info {
+                @extend .text-muted;
+            }
+        }
+        @include media-breakpoint-up(md) {
+            position: sticky;
+            top: $nav-height;
+            z-index: 1020;
+        }
+
+    }
+    .content-body {
+        .content-panel-wrapper {
+            box-shadow: 
+                rgba($gray-800, 0.07) 0px 7px 14px 0px, 
+                rgba($gray-800, 0.07) 0px 3px 6px 0px;
+            border-radius: 2px;
+            margin-bottom: 20px;
+
+            .content-panel-body {
+                padding: 1rem;
+            }
+        }
+    }
+    &-dashboard {
+        @extend .px-2;
+        @extend .py-md-3;
+        @extend .py-md-4;
+        @extend .pl-lg-5;
+        @extend .pr-lg-4;
+        @extend .w-100;
+        margin-left: 0;
+
+        @include media-breakpoint-up(md) {
+            margin-left: 20%;
+            margin-top: 0;
+        }
+    }
+    &-calendar {
+        // theming du calendar 
+        @extend .px-0;
+        position: relative;
+        flex: 1;
+        min-width: 0;
+
+        a {
+            @extend .text-dark;
+        }
+
+        .event-selected {
+            @extend .text-light;
+            background-color: $dark;
+            border-color: $dark;
+
+            &.fc-list-event{
+                a {
+                    @extend .text-light;
+                }
+                &:hover td{
+                    background-color: darken($dark, 5);
+                }
+            }
+        }
+
+        .fc-header-toolbar {
+            @extend .btn-toolbar;
+            @extend .bg-dark;
+            @extend .mb-0;
+            display: inline-flex;
+            padding: .5rem 1rem;
+            border-top: 1px solid rgba($light, 0.5);
+
+            .fc-toolbar-chunk {
+                .fc-button-group {
+                    @extend .btn-group;  
+                }
+                .fc-button {
+                    @extend .btn;
+                    @extend .btn-sm;
+                    @extend .btn-outline-light;
+                    
+                    &.fc-button-active {
+                        @extend .active;
+                    }
+                    &.fc-customTitle-button {
+                        min-width: 100px;
+                        @extend .text-light;
+                        opacity: 1;
+
+                        @include media-breakpoint-up(sm) {
+                            min-width: 160px;
+                        }
+                    }
+                    &#choseViewButton {
+                        @extend .collapse;
+                        
+                        &:not(.show) {
+                            @include transition($transition-fade);
+                        }
+                    }
+                    &#toggleSidebar {
+                        &::before {
+                            @include fa-icon;
+                            @extend .fa;
+                            content: fa-content($fa-var-info-circle);
+                        }
+                    }
+                }
+                &#viewChoiceDropdown {
+                    @extend .ml-auto;
+                    @extend .mr-auto;
+                    
+                    &.mobile {
+                        @include make-dropdown();
+                        @extend .ml-1;
+                        @extend .mr-1;
+                    }
+                }
+            }
+        }
+        // correction du chevauchement des entêtes sticky (liste)
+        .fc-list-sticky  {
+            .fc-list-day {
+                > * {
+                    z-index: 10;
+                }
+            }
+        }
+    }
+}
+
+.side-menu {
+    border-bottom: 1px solid rgba($gray-800,.1);
+    width: 20%;
+    // @extend .no-gutters;
+    
+    &-secondary {
+        border-right: 1px solid rgba($gray-800,.1);
+        position: fixed;
+        top: $nav-height;
+        min-height: 100%;
+        background-color: $light;
+        padding-top: 1.5rem;
+
+        @include media-breakpoint-down(md) {
+            width: 100%;
+            min-height: 0;
+            display: none;
+        }
+
+        @extend .list-group;
+        @extend .list-group-flush;
+        
+        .list-group-item {
+            border-bottom: 0;
+            padding-bottom: 0;
+            padding-left: 2.5rem;
+        }
+        .list-item-link {
+            padding: .2rem .5rem;
+            color: rgba(0,0,0,0.65);
+            border: 0;
+            font-weight: bold;
+            font-size: 1rem;
+            
+            &.dropdown-trigger {
+                &::before {
+                    @include fa-icon;
+                    @extend .fa;
+                    @extend .mr-2;
+                    content: fa-content($fa-var-chevron-right);
+                    position: absolute;
+                    margin-left: .5rem;
+                    left: 1rem;
+                    top: 1rem;
+                }
+                ~ .list-unstyled {
+                    @extend .collapse;
+                    margin-bottom: 0;
+
+                    a {
+                        color: inherit;
+                        padding-left: .6rem;
+                    }
+                }
+            }
+        }
+        a {
+            &:hover {
+                color: rgba(0,0,0,0.85);
+                text-decoration: none;
+            }
+        }
+        .list-group-item.expanded {
+            .dropdown-trigger::before {
+                content: fa-content($fa-var-chevron-down);
+            }
+        }
+    }
+}
+
+#modal-container {
+    @extend .modal;
+    @extend .fade;
+    @extend .hide;
+    transition: all 1s ease-in-out;
+    
+    #modalDialog {
+        @extend .modal-dialog;
+        @extend .modal-lg;
+        @extend .mx-auto;
+    }
+    &.show {
+        display: block;
+        opacity: 1;
+        
+        .modal-title {
+            @extend .h4;
+            @extend .mb-0;
+        }
+        
+        @include media-breakpoint-down(sm) {
+            .modal-content {
+                position: fixed;
+                top: $nav-height;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+        }
+    }
+}
+
+// Form-inline des compétences
+.form-inline .form-control {
+    @extend .form-control-sm;
+    @extend .mr-2;
+}
+
+// Content Info, theming
+.section-info {    
+    .title {
+        @extend .h5;
+        +h3 {
+            @extend .h6;
+            @extend .pb-3;
+            border-bottom: 1px solid rgba($gray-800, .1);
+        }
+    }
+    &-body {
+        .list-registered {
+            @extend .list-group;
+            @extend .list-group-flush;
+            @extend .mb-3;
+
+            > .list-item {
+                @extend .list-group-item;
+                @extend .px-1;
+            }
+        }
+    }
+    &.form-info {
+        .title {
+            @extend .mb-0;
+        }
+        .card-header {
+            @extend .pl-1;
+            caption-side: top;
+        }
+        .form-info-body {
+            tr:hover, 
+            tr:nth-of-type(2n+1) {
+                background-color: $light;
+            }
+            @extend .mb-0;
+
+            .form-control, 
+            .custom-select {
+                @extend .form-control-sm;
+                min-width: 170px;
+            }
+            .form-row-multiple {
+                span {
+                    @extend .d-inline-flex;
+                    @extend .mr-2;
+                    label {
+                        @extend .mr-2;
+                    }
+
+                    @include media-breakpoint-down(md) {
+                        flex-wrap: wrap;
+                    }
+                }
+            }
+        }
+        @extend .mb-3;
+        @extend .border-bottom;
+
+        th[scope="row"] {
+            width: 25%;
+        }
+    }
+}
+
+.table {
+    @extend .table-sm;
+    @extend .table-hover;
+    background-color: $light;
+    border-bottom: 1px solid #eee;
+    
+    th[scope="col"] {
+        border-top: 0;
+    }
+    a.link-color-muted {
+        color: inherit;
+    }
+    .table-row-cliquable {
+        position: relative; // forcer le lien à s'appliquer au container row
+        a {
+            @extend .stretched-link;
+        }
+    }
+    caption {
+        caption-side: initial; // Désactiver le « caption-side: bottom; » par défaut de Bootstrap
+    }
+    tfoot {
+        @extend .border-top;
+    }
+    // enlever la bordure pour le premier rang
+        tr:first-of-type {
+        th, 
+        td {
+            border-top: 0;
+        }
+    }
+}
+.form-group {
+    .form-group {
+        @extend .mb-0;
+    }
+}
+.form-group-collection {
+    @extend .form-group;
+    .collection-row {
+        @extend .form-row;
+        @extend .d-flex;
+        @extend .align-items-center;
+
+        .collection-col {
+            @extend .col;
+            @extend .col-auto;
+            @extend .my-1;
+        }
+    }
+    .add-another-collection-widget {
+        @extend .bold-link;
+        &::before {
+            @include fa-icon;
+            @extend .fa;
+            content: fa-content($fa-var-plus);
+            @extend .mr-2;
+        }
+    }
+}
+.remove-button {
+    @extend .mx-2;
+    @extend .bold-link;
+    @extend .text-danger;
+
+    &::before {
+        @include fa-icon;
+        @extend .fa;
+        content: fa-content($fa-var-times);
+        @extend .mr-2;
+    }
+}
+.save-button {
+    @extend .btn;
+    @extend .btn-sm;
+    @extend .btn-primary;
+}

@@ -1,0 +1,34 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | {{ task_template.formattedDayOfWeek|capitalize }} {{ task_template.startAt ? task_template.startAt|date('H:i', 'Europe/Paris') : '' }}-{{ task_template.endAt ? task_template.endAt|date('H:i') : '' }}{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = 'Éditer le Modèle' %}
+    {{ section_title }} 
+    <span class="text-muted">
+        <small>({{ task_template.formattedDayOfWeek|capitalize }} {{ task_template.startAt ? task_template.startAt|date('H:i', 'Europe/Paris') : '' }}-{{ task_template.endAt ? task_template.endAt|date('H:i') : '' }})</small>
+    </span>
+{% endblock %}
+
+{% block page_actions %}
+    {{ parent() }}
+    <a href="{{ path('task_template_index') }}">Retour à la liste</a>
+{% endblock %}
+
+{% block flashes %}
+    {{ parent() }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="content-panel-body">
+        {% block form_body %}
+            {{ include('dashboard/task_template/_form-edit.html.twig', {'button_label': 'Update'}) }}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block javascript %}{{ parent() }}{% endblock %}

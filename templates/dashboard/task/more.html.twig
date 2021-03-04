@@ -1,0 +1,80 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | {{ task.eventStart|format_datetime('full', 'none', locale='fr')|capitalize }}{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = task.taskTemplate.formattedDayOfWeek|capitalize ~ " " ~ task.eventStart|date('d/m') %}
+    {{ section_title }} <span class="text-muted"><small>#{{ task.id }}</small></span> <span class="badge-{{ task.category }}">{{ task.category }}</span>
+    <span class="text-muted">
+{% endblock %}
+
+{% block page_actions %}
+    {{ parent() }}
+    <a href="{{ path('task_template_edit', {'id': task.taskTemplate.id}) }}" class="mr-3">Éditer le modèle</a>
+    <a href="{{ path('task_index') }}">Retour à la liste</a>
+{% endblock %}
+
+{% block flashes %}
+    {{ parent() }}
+{% endblock %}
+
+{% block page_content %}
+    <div class="content-panel-body">
+        <section class="section-info form-info">
+            <table class="table form-info-body">
+                <tbody>
+                    <tr>
+                        <th scope="row">Catégorie</th>
+                        <td>{{ task.category|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Date</th>
+                        <td>{{ task.eventStart|format_datetime('full', 'none', locale='fr')|capitalize }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Horaires de service</th>
+                        <td>{{ task.eventStart|date('H:i') ~ "-" ~ task.eventEnd|date('H:i') }}</td>
+                    </tr>
+                    <tr>
+                        <th scope="row">Inscrits ({{ task.registrationTasks|length }}/{{ task.membersMin }})</th>
+                        <td>
+                            {# S'il y a des inscrits afficher la liste #}
+                            <ul class="list-unstyled">
+                                {% for registrationTask in task.registrationTasks %}
+                                    <li> 
+                                        {{ registrationTask.user.firstName|capitalize ~ " " ~ registrationTask.user.lastName|upper }}
+                                        
+                                        {# Afficher l'expérience des inscrits #}
+                                        <span class="badge-{{ task.category }}">
+                                        {% for skill in registrationTask.user.userSkills|filter(s => s.skill.label == task.category.label) %}
+                                            {{ skill.exp is same as('habitué.e') ? skill.exp : 'novice' }}
+                                        {% else %}
+                                            novice
+                                        {% endfor %}
+                                        </span>
+
+                                        {# Afficher s'il a un badge ou non #}
+                                        {% if registrationTask.user.hasPass %}
+                                            <span class="badge-success">badge</span>{% if not loop|last %},{% endif %}
+                                        {% endif %}
+
+                                        {% if registrationTask.task.eventStart > date('') %}
+                                            <a href="{{ path('task_registration_delete', {'id': registrationTask.id}) }}" class="remove-button">Annuler</a>
+                                        {% endif %}                                        
+                                    </li>
+                                {% else %}
+                                    <span class="text-muted">Aucun</span>
+                                {% endfor %}
+                            </ul>
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+            </table>
+        </section>
+    </div>
+{% endblock %}

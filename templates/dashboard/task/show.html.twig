@@ -1,0 +1,34 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Task{% endblock %}
+
+{% block body %}
+    <h1>Task</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ task.id }}</td>
+            </tr>
+            <tr>
+                <th>TaskDate</th>
+                <td></td>
+            </tr>
+            <tr>
+                <th>IsClosed</th>
+                <td>{{ task.isClosed ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>MutePassAlert</th>
+                <td>{{ task.mutePassAlert ? 'Yes' : 'No' }}</td>
+            </tr>
+            <tr>
+                <th>MuteMembersAlert</th>
+                <td>{{ task.muteMembersAlert ? 'Yes' : 'No' }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a href="{{ path('task_index') }}">back to list</a>
+{% endblock %}

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="robots" content="none">
+        <meta name="googlebot" content="none">
+        <title>{% block title %}Coopalim Tasks{% endblock %}</title>
+        {% block stylesheets %}
+            {{ encore_entry_link_tags('widget-calendar') }}
+            {{ encore_entry_link_tags('app') }}
+        {% endblock %}
+    </head>
+    <body>
+        {% block body %}
+            {% block loader %}
+            <div id="loader-wrapper">
+                <span id="loader"></span>
+            </div>
+            {% endblock %}
+
+            {% block header %}
+                {% set theme_color = is_granted('ROLE_ADMIN') ? 'dark' : 'secondary' %}
+                {% set home_path = is_granted('ROLE_ADMIN') ? 'dashboard' : 'calendar' %}
+                
+                <header class="main-nav theme-{{ theme_color }}">
+                    <a class="nav-brand" href="{{ path(home_path) }}">Tasks</a>
+                    
+                    <a id="nav-toggler" href="#" data-target="#collapsibleContent" aria-controls="collapsibleContent">
+                        <span class="nav-toggler-icon"></span>
+                    </a>
+
+                    <div id="collapsibleContent" class="nav-collapsible">
+                        {% if is_granted('ROLE_ADMIN') %}
+                            {% block header_navigation %}{% include "dashboard/_navigation.html.twig" %}{% endblock %}
+                        {% endif %}
+                        
+                        {% block header_user_menu %}
+                            {# @TODO: div cta login side-bar #}
+                            {% if app.user %}
+                                <div class="user-menu-wrapper">
+                                    <span class="user-name">{{ app.user.firstName|capitalize }} {{ app.user.lastName|capitalize }} | <a href="{{ path('app_logout') }}">Déconnexion</a></span>
+                                </div>
+                            {% endif %}
+                        {% endblock %}  
+                    </div>
+
+                </header>
+            {% endblock %}
+
+            {% block wrapper %}
+                {% block flash_messages %}{% endblock %}
+            {% endblock %}
+        {% endblock %}
+
+        {% block javascripts %}
+            {{ encore_entry_script_tags('app') }}
+            {{ encore_entry_script_tags('widget-collection') }}
+        {% endblock %}
+    </body>
+</html>

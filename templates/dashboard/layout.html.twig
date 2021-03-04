@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }}{% endblock %}
+{% set section_title = "Tableau de bord" %}
+
+{% block body %}
+    {% block loader %}
+        {{ parent() }}
+    {% endblock %}
+
+    {% block header %}
+        {{ parent() }}
+    {% endblock %}
+
+    {% block wrapper %}
+        {{ parent() }}
+
+        <div class="content-wrapper wrapper-dashboard">
+            {% block sidebar %}
+                {% include "dashboard/_secondary-navigation.html.twig" %}
+            {% endblock %}
+
+            {% block content %}
+                <main class="content content-dashboard">
+                    {% block content_header_wrapper %}
+                        <header class="content-header">
+                            {% block content_header %}
+                                <h1 class="content-header-title">{% block content_title %}{{ section_title }}{% endblock %}</h1>
+                                <div class="page-actions">{% block page_actions %}{% endblock %}</div>
+                            {% endblock %}
+                        </header>
+                    {% endblock %}
+
+                    <div class="content-body">
+                        {% block main %}
+                            {% block flashes %}
+                                
+                                {# read and display all flash messages #}
+                                {% for label, messages in app.flashes %}
+                                    <div class="flash-container">
+                                    {% for message in messages %}
+                                        <div class="alert-{{ label }}">
+                                            {{ message }}
+                                        </div>
+                                    {% endfor %}
+                                    </div>
+                                {% endfor %}
+                            {% endblock %}
+
+                            {% block page_content %}
+                                {% include "dashboard/_dashboard-info.html.twig" %}
+                            {% endblock %}
+                        {% endblock %}
+                    </div>
+                </div>
+            {% endblock %}
+        </main>
+    {% endblock %}
+{% endblock %}
+
+{% block javascripts %}{{ parent() }}{% endblock %}

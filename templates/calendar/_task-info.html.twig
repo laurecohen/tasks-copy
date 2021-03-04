@@ -1,0 +1,96 @@
+{% set count = 0 %}
+{% set is_registered = false %}
+
+<section class="section-info">
+    <p>
+        Période du {{ period.start|format_datetime('short', 'none', locale='fr') }} au {{ period.end|format_datetime('short', 'none', locale='fr') }}.
+    </p>
+    <p class="section-info-body">
+        {% for registrationTask in app.user.registrationTasks|sort((a, b) => a.task.eventStart <=> b.task.eventStart)|filter(rt => rt.task.eventStart > date())|slice(0,1) %}
+            {# incrémenter le compteur #}
+            {% set count = count + 1 %}
+
+            <p class="alert-info">
+                {# Votre prochaine tâche de {{ registrationTask.task.category }} aura lieu le <a id="trigger-event" href="{{ path('task_show', {'id': registrationTask.task.id }) }}" class="alert-link"><strong>{{ registrationTask.task.eventStart|format_datetime('medium', 'none', locale='fr') }} de {{ registrationTask.task.eventStart|date('H\\hi') }} à {{ registrationTask.task.eventEnd|date('H\\hi') }}</strong></a>. #}
+                Votre prochaine tâche de {{ registrationTask.task.category }} aura lieu le <strong>{{ registrationTask.task.eventStart|format_datetime('medium', 'none', locale='fr') }} de {{ registrationTask.task.eventStart|date('H\\hi') }} à {{ registrationTask.task.eventEnd|date('H\\hi') }}</strong>.
+            </p>
+        {% endfor %}
+
+        {% if count is same as(0) %}
+            <p class="alert alert-warning tip">
+                <strong>Attention :</strong> Vous n'êtes pas encore inscrit aux tâches pour cette période.
+            </p>
+        {% endif %}
+    </p>
+</section>
+
+{# Si task n'est pas null #}
+{% if not task is null %}
+    <hr>
+    {# Nombre de places disponibles #}
+    {% set available = task.membersMax - task.registrationTasks|length %}
+
+    <section class="section-info">
+        <h2 class="title">Tâche <span class="text-muted"><small>#{{ task.id }}</small></span> <span class="badge-{{ task.category }}">{{ task.category }}</span></h2>
+        {# Répéter info date et heure #}
+        <h3>{{ task.taskTemplate.formattedDayOfWeek|capitalize }} {{ task.eventStart|date('d/m, \\d\\e H\\hi') }} à {{ task.eventEnd|date('H\\hi') }} </h3>
+        <article class="section-info-body">
+            <p>Inscrits : <span class="badge-info">{{ task.registrationTasks|length }}</span></p>
+            
+            {% if not task.registrationTasks is empty %}
+                {# S'il y a des inscrits afficher la liste #}
+                <ul class="list-registered">     
+                    {% for registrationTask in task.registrationTasks %}
+                        <li class="list-item">
+                            {{ registrationTask.user.firstName|capitalize ~ " " ~ registrationTask.user.lastName|upper }}
+                            
+                            {# Afficher l'expérience des inscrits #}
+                            <span class="badge-{{ task.category }}">
+                            {% for skill in registrationTask.user.userSkills|filter(s => s.skill.label == task.category.label) %}
+                                {{ skill.exp is same as('habitué.e') ? skill.exp : 'novice' }}
+                            {% else %}
+                                novice
+                            {% endfor %}
+                            </span>
+
+                            {# Afficher s'il a un badge ou non #}
+                            {% if registrationTask.user.hasPass %}
+                                <span class="badge-success">badge</span>
+                            {% endif %}
+                        </li>
+
+                        {# et vérifier si l'utilisateur connecté fait partie des inscrits #}
+                        {% if registrationTask.user is same as(session_user) %}
+                            {% set is_registered = true %}
+                        {% endif %}
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <p>
+                {# Si date dépassée => ne rien afficher #}
+                {% if task.eventStart > date()  %}
+                    
+                    {# si pas complet, afficher msg = nb de places restantes #}
+                    {% if available > 0 %}
+                        {# afficher nb de places restantes #}
+                        <strong>{{ available }} places</strong> restantes !
+                        
+                        {% if not is_registered %}
+                            <a id="registration-btn" class="bold-link" href="{{ path('tasks_register', {'id': task.id }) }}">Je m'inscris.</a>
+                        {% endif %}
+                    {% else %}
+                        Ce créneau est déjà est complet !
+                    {% endif %}
+                {% endif %}
+            </p>
+
+            {# Afficher les infos pour l'annulation pour les créneaux à venir #}
+            {% if task.eventStart > date() and is_registered %}
+                <p>
+                    Pour annuler votre tâche, merci d'écrire à l'adresse <a href="mailto:laboocoopalim@gmail.com" class="bold-link">laboocoopalim@gmail.com</a>.
+                </p>
+            {% endif %} 
+        </article>
+    </section>
+{% endif %}

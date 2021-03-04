@@ -1,0 +1,42 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | Compétences{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = 'Liste des compétences' %}
+    {{ section_title }} <span class="text-muted"><small>({{ skills|length }} entrées)</small></span>
+{% endblock %}
+   
+{% block page_actions %}
+    {{ parent() }}
+    {% block add_new %}{{ include('dashboard/skill/_form.html.twig', {'button_label': 'Ajouter une compétence'}) }}{% endblock %}
+{% endblock %}
+
+{% block flashes %}
+    {{ parent() }}
+{% endblock %}
+
+{% block page_content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Nom</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for skill in skills|sort((a, b) => a.label <=> b.label) %}
+            <tr class="table-row-cliquable">
+                <td>{{ skill.label }}</td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="1">Aucune compétence n'a été trouvée.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

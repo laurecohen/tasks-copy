@@ -1,0 +1,13 @@
+{% block navigation %}
+    <ul class="nav-menu"> 
+        <li class="nav-menu-item">
+            <a href="{{ path('dashboard') }}" class="{{ app.request.get('_route') == 'dashboard' ? 'active' }}">Tableau de bord</a>
+        </li>   
+        <li class="nav-menu-item">
+            <a href="{{ path('user_index') }}" class="{{ app.request.get('_route') == 'user_index' ? 'active' }}">Adhérents</a>
+        </li>   
+        <li class="nav-menu-item">
+            <a href="{{ path('calendar') }}" class="{{ app.request.get('_route') == 'calendar' ? 'active' }}">Agenda</a>
+        </li>    
+    </ul>
+{% endblock %}

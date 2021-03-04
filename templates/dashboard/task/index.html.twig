@@ -1,0 +1,54 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | Liste des tâches{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = 'Liste des tâches' %}
+    {{ section_title }} <span class="text-muted"><small>({{ tasks|length }} entrées)</small></span>
+{% endblock %}
+
+{% block page_actions %}
+    {{ parent() }}
+    <a href="{{ path('task_template_new') }}">Nouveau modèle</a>
+{% endblock %}
+
+{% block page_content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Type</th>
+                <th scope="col">Date</th>
+                <th scope="col">Horaire</th>
+                <th scope="col">Inscrits</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for task in tasks|sort((a, b) => a.eventStart <=> b.eventStart) %}
+            {% set theme_color = task.category %}
+            <tr class="table-row-cliquable">
+                <td class="dot-{{ theme_color }}"></td>
+                <td>{{ task.category|capitalize }}</td>
+                <td>{{ task.eventStart|format_datetime('full', 'none', locale='fr')|capitalize }}</td>
+                <td>{{ task.eventStart|date('H:i') }}-{{ task.eventEnd|date('H:i') }}</td>
+                <td>
+                    {{ task.registrationTasks|length }}/{{ task.membersMin }}
+                </td>
+                <td class="table-cell-action">
+                    {# Disable if has tasks registered #}
+                    <a href="{{ path('task_more', {'id': task.id}) }}">Afficher plus</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="8">Aucun modèle n'a été trouvé.</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | Nouveau modèle{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = 'Nouveau modèle de tâche' %}
+    {{ section_title }}
+{% endblock %}
+
+{% block page_actions %}
+    <a href="{{ path('task_template_index') }}">Retour à la liste</a>
+{% endblock %}
+
+{% block page_content %}
+    <div class="content-panel-body">
+        {% block form_body %}
+            {{ include('dashboard/task_template/_form-new.html.twig', {'button_label': 'Update'}) }}
+        {% endblock %}
+    </div>
+{% endblock %}
+
+{% block javascript %}{{ parent() }}{% endblock %}

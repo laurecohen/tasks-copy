@@ -1,0 +1,46 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ parent() }} | Agenda{% endblock %}
+
+{% block body %}
+    <style>
+        body {
+            /* Correction du bug du calendrier (css-Hack) */
+            height: 100vh;
+        }
+    </style>
+
+    {% block loader %}{{ parent() }}{% endblock %}
+    {% block header %}{{ parent() }}{% endblock %}
+
+    {% block wrapper %}
+        {{ parent() }}
+        
+        <div class="content-wrapper">
+            <main class="content content-calendar">
+                <div id="calendar-container" data-events-url="{{ path('fc_load_events') }}"></div>
+            </main>
+
+            <aside id="modal-container" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true">
+                <div id="modalDialog" role="document">
+                    <main class="modal-content">
+                        <header class="modal-header">
+                            <h2 class="modal-title" id="modalLabel">Information</h2>
+                            <button type="button" id="closeModalButton" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </header>
+                        <article id="modal-body" class="modal-body">
+                            {% include "calendar/_task-info.html.twig" with { 'session_user': app.user, 'period': period } %}
+                        </article>
+                    </main>
+                </div>
+            </aside>
+        </div>
+    {% endblock %}
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {{ encore_entry_script_tags('widget-calendar') }}
+{% endblock %}

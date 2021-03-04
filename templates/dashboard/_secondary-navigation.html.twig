@@ -1,0 +1,13 @@
+<nav class="side-menu side-menu-secondary">
+	<div class="list-group-item expanded">
+		<a href="#" class="list-item-link dropdown-trigger">Tâches</a>
+		<ul class="list-unstyled show">
+			<li><a href="{{ path('task_template_index') }}" class="list-item nav-link">Liste des modèles</a></li>
+			<li><a href="{{ path('task_template_new') }}" class="list-item nav-link">Nouveau modèle</a></li>
+			<li><a href="{{ path('task_index') }}" class="list-item nav-link">Liste des tâches</a></li>
+		</ul>
+	</div>
+	<div class="list-group-item">
+		<a href="{{ path('skill_index') }}" class="list-item-link">Compétences</a>
+	</div>
+</nav>

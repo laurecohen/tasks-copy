@@ -1,0 +1,52 @@
+{% extends 'dashboard/layout.html.twig' %}
+
+{% block title %}{{ parent() }} | Modèles de tâche{% endblock %}
+
+{% block header %}
+    {{ parent() }}
+{% endblock %} 
+
+{% block content_title %}
+    {% set section_title = 'Liste des modèles de tâche' %}
+    {{ section_title }} <span class="text-muted"><small>({{ task_templates|length }} entrée{% if task_templates|length > 1 %}s{% endif %})</small></span>
+{% endblock %}
+
+{% block page_actions %}
+    {{ parent() }}
+    <a href="{{ path('task_template_new') }}">Nouveau modèle</a>
+{% endblock %}
+
+{% block page_content %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col"></th>
+                <th scope="col">Type</th>
+                <th scope="col">Jour</th>
+                <th scope="col">Horaires</th>
+                <th scope="col">Activé</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task_template in task_templates %}
+                {% set theme_color = task_template.category %}
+                <tr class="table-row-cliquable">
+                    <td class="dot-{{ theme_color }}"></td>
+                    <td>{{ task_template.category|capitalize }}</td>
+                    <td>{{ task_template.formattedDayOfWeek|capitalize }}</td>
+                    <td>{{ task_template.startAt|date('H:i', 'Europe/Paris') ~ "-" ~ task_template.endAt|date('H:i') }}</td>
+                    <td>{{ task_template.isRecurrent ? 'Oui' : 'Non' }}</td>
+                    <td class="table-cell-action">
+                        {# Disable if has tasks registered #}
+                        <a href="{{ path('task_template_edit', {'id': task_template.id}) }}" title="Afficher et éditer le modèle">Éditer le modèle</a>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="6">Aucun modèle n'a été trouvé.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

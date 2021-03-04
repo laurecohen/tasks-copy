@@ -1,0 +1,63 @@
+{% block page_content %}
+    <div class="content-panel-body">
+        <p>Période du {{ "now"|date('d/m/Y') }} au {{ "now"|date_modify('+7 days')|date('d/m/Y') }}</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col"></th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Tâche</th>
+                    <th scope="col" colspan="2">Alertes</th>
+                    <th scope="col"></th>
+                </tr>
+            </thead>
+            <tbody>
+                {# toutes les tâches à J + 7 #}
+                {% for task in tasks|filter((t) => t.eventStart >= date('now') and t.eventStart <= date('')|date_modify('+1 week'))|sort((a,b) => a.eventStart <=> b.eventStart) %}
+                    {% set passcount = 0 %}
+                    {% set theme_color = task.category %}
+
+                    {% for registration in task.registrationTasks|filter(rg => rg.user.hasPass) %}
+                        {% set passcount = passcount + 1 %}
+                    {% endfor %}
+
+                    {# si pas assez de participants #}
+                    {% if task.registrationTasks|length < task.membersMin or passcount < 1 %}
+                    <tr class="table-row-cliquable">
+                        <td class="dot-{{ theme_color }}"></td>
+                        <td>{{ task.category|capitalize }}</td>
+                        <td>{{ task.taskTemplate.formattedDayOfWeek ~ ' ' ~ task.eventStart|date('d/m \\(H\\hi\\-H\\hi\\)') }}</td>
+                        <td>
+                            {# si pas assez de participants #}
+                            {% if task.registrationTasks|length < task.membersMin %}
+                                {{ task.membersMin - task.registrationTasks|length }} {{ (task.membersMin - task.registrationTasks|length > 1) ? "personnes nécessaires" : "personne nécessaire" }}
+                            {% endif %} 
+                        </td>
+                        <td>
+                            {% if passcount < 1 %}
+                                Problème de badge !
+                            {% endif %} 
+                        </td>
+                        <td class="table-cell-action">
+                            {# Disable if has tasks registered #}
+                            <a href="{{ path('task_more', {'id': task.id}) }}" title="Afficher le détail de la tâche">Afficher plus</a>
+                        </td>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr>
+                        <td colspan="5">Aucune urgence pour la semaine à venir.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr colspan="6">
+                    <td>
+                        <a href="{{ path('task_index') }}">Liste des tâches</a>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+{% endblock %}

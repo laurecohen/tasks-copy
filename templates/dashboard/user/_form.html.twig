@@ -1,0 +1,35 @@
+{% set button_label = "Enregistrer les modifications" %}
+
+{{ form_start(form) }}
+    {{ form_errors(form) }}
+
+    <div class="form-group-collection">
+        <section id="templateskills-fields-list"
+            data-prototype="{{ form_widget(form.userSkills.vars.prototype)|e }}"
+            data-widget-tagname="{{ 'div'|e }}"
+            data-widget-counter="{{ form.userSkills|length }}">
+
+            {% if form.userSkills is empty %}
+                {# store hidden template and render empty form widget #}
+                <div style="display:none; height:0" class="collection-row">
+                    {{ form_widget(form.userSkills) }}
+                    <div class="collection-col"></div>
+                </div>
+            {% else %}
+                {% for userSkill in form.userSkills %}
+                    <div class="collection-row add-remove-button">
+                        {% for child in userSkill %}        
+                            <div class="collection-col">
+                                {{ form_errors(child) }}
+                                {{ form_widget(child) }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}  
+            {% endif %}          
+        </section>
+        <p><a href="#" class="add-another-collection-widget" data-list-selector="#templateskills-fields-list">Ajouter une compétence</a></p>
+    </div>   
+
+    <button class="save-button">{{ button_label|default('Save') }}</button>
+{{ form_end(form) }}
